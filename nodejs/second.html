@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Highcharts Example</title>
+		
+		
+		<!-- 1. Add these JavaScript inclusions in the head of your page -->
+		<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+		<script src="https://code.highcharts.com/highcharts.js"></script>
+		<script src="https://code.highcharts.com/modules/exporting.js"></script>
+		<script src="https://code.highcharts.com/modules/export-data.js"></script>
+		
+		
+		<!-- 2. Add the JavaScript to initialize the chart on document ready -->
+		<script>
+		var chart; // global
+		var chartAutre;
+		
+		/**
+		 * Request data from the server, add it to the graph and set a timeout to request again
+		 */
+		function requestData() {
+			$.ajax({
+				url: 'http://localhost:8080/api/', 
+				success: function(point) {
+					console.log(point);
+					var series = chart.series[0],
+						shift = series.data.length > 20; // shift if the series is longer than 20
+		
+					// add the point
+					chart.series[0].addPoint(eval(point), true, shift);
+					//TO DISPLAY ARRAY USE setData()
+					
+					// call it again after one second
+					setTimeout(requestData, 1000);	
+				},
+				cache: false
+			});
+		}
+		function requestDataAutre() {
+			$.ajax({
+				url: 'http://localhost:8080/api/autre', 
+				success: function(point) {
+					console.log(point);
+					var series = chartAutre.series[0],
+						shift = series.data.length > 20; // shift if the series is longer than 20
+		
+					// add the point
+					chartAutre.series[0].addPoint(eval(point), true, shift);
+					//TO DISPLAY ARRAY USE setData()
+					
+					// call it again after one second
+					setTimeout(requestDataAutre, 1000);	
+				},
+				cache: false
+			});
+		}
+		
+			
+		$(document).ready(function() {
+			chart = new Highcharts.Chart({
+				chart: {
+					renderTo: 'container',
+					defaultSeriesType: 'line',
+					events: {
+						load: requestData
+					}
+				},
+				title: {
+					text: 'FPS premiere courbe'
+				},
+				xAxis: {
+					type: 'datetime',
+					tickPixelInterval: 150,
+					maxZoom: 20 * 1000
+				},
+				yAxis: {
+					minPadding: 0.2,
+					maxPadding: 0.2,
+					title: {
+						text: 'Value',
+						margin: 80
+					},plotLines: [{
+					    color: 'red', // Color value
+					    dashStyle: 'longdashdot', // Style of the plot line. Default to solid
+					    value: 44.5, // Value of where the line will appear
+					    width: 2 // Width of the line    
+					  }],
+					
+				},
+				zones: [{
+				   value: 0,
+				   color: '#FF0000'
+				}, {
+				   value: 45,
+				   color: '#0000ff'
+				}, {
+				   color: '#00ff00'
+				}],
+				series: [{
+					name: 'Random FPS',
+					data: []
+				}]
+			});
+			chartAutre = new Highcharts.Chart({
+				chart: {
+					renderTo: 'containerAutre',
+					defaultSeriesType: 'spline',
+					events: {
+						load: requestDataAutre
+					}
+				},
+				title: {
+					text: 'Deuxieme courbe'
+				},
+				xAxis: {
+					type: 'datetime',
+					tickPixelInterval: 150,
+					maxZoom: 20 * 1000
+				},
+				yAxis: {
+					minPadding: 0.2,
+					maxPadding: 0.2,
+					title: {
+						text: 'Value',
+						margin: 80
+					}
+				},
+				series: [{
+					name: 'Random data',
+					data: []
+				}]
+			});		
+		});
+		
+		</script>
+		
+		
+	</head>
+	<body>
+		
+		<!-- 3. Add the container -->
+		<div id="container" style="width: 100%; height: 100%; margin: 0 auto"></div>
+		<div id="containerAutre" style="width: 100%; height: 100%; margin: 0 auto"></div>
+	</body>
+</html>
+
+
